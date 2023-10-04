@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #reading data of baby drinking expressed milk
-#
-yalkunData = pd.read_csv("C:/Users/osmanjan/Downloads/csv/Yalkun_expressed.csv")
+#Add file path in the paranthesis. 
+yalkunData = pd.read_csv("file path")
 #assigning some global variables used in the program
 fedTime = ""
 morningOrAfternoon = ""
@@ -176,7 +176,7 @@ def plotThisMonth(babyFeedingInfoList, thisMonth, linestyle, linecolor):
     plt.ylabel("Amount (oz)")
 
 
-#Actual non-functional code starts here.
+#Actual analysis starts below!
 
 #How many data entries there?
 totalDataEntry = len(yalkunData)
