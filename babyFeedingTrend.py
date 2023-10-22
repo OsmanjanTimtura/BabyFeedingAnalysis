@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #reading data of baby drinking expressed milk
-#Add file path in the paranthesis. 
-yalkunData = pd.read_csv("file path")
+#
+yalkunData = pd.read_csv("C:/Users/osmanjan/Downloads/csv/Yalkun_expressed.csv")
 #assigning some global variables used in the program
 fedTime = ""
 morningOrAfternoon = ""
@@ -89,27 +89,32 @@ def splitDateTime(myDateTime):
 
 #This function takes monthly data, calculates the average by range of a day, returns the monthly average by range of a day. 
 def monthlyAverageByRange(myMonthlyData):
-    count_range = list()
+    datesInMonth = list()
+    dayCount = 1
     sum_range = list()
     range_average = list()
     monthlyAverageByRange = list()
     try:
         #This loop assigns 0 as initial value for count and sum of each range.
         for i in range(24):
-            count_range.append(0)
             sum_range.append(0)
             range_average.append(0)
         #This loop loops through monthly data which includes range info of the data, and actual value. 
-        #sums up values belong to each range, and counts the appearance of each range. 
+        #sums up values belong to each range
         for data in myMonthlyData:
             for i in range(24):
                 if data[0] == i:
                     sum_range[i] = sum_range[i] + data[1]
-                    count_range[i] = count_range[i] + 1
+            # Puts all dates in a list
+            datesInMonth.append(data[2])
+        #puts unique dates in a set
+        daysInMonth = set(datesInMonth)
+        #calculates number of dates in the month which actually has an entry.
+        dayCount = len(daysInMonth)
         #This loop calculates the average of feedings at each time range and put the results in a list. 
         for i in range(24):
-            if count_range[i] != 0:
-                range_average[i] = sum_range[i] / count_range[i]
+            if dayCount != 0:
+                range_average[i] = sum_range[i] / dayCount
                 monthlyAverageByRange.append([i, range_average[i]])
     except:
         print("Something went wrong while calculating the averages!")
@@ -121,11 +126,15 @@ def monthlyData(month, feedingInfoList):
     myMonthlyData = list()
     try:
         for feedInfo in feedingInfoList:
-            if feedInfo[0] == month:
-                myMonthlyData.append([feedInfo[1], feedInfo[2]])
+            if feedInfo[0] == month:  #range        amount        date
+                myMonthlyData.append([feedInfo[1], feedInfo[2], feedInfo[3]])
     except:
         print("There's something wrong splitting the monthly data.")
     return myMonthlyData
+
+
+def dayInThisMonth(miList):
+    pass
 
 
 #This function takes monthly data, uses range as x axis, average value as y axis, puts them in an numpy array and returns the array. 
@@ -149,8 +158,8 @@ def showMonthlyGraph(thisMonthlyData):
 #This function extracts range average data by a given month.
 def thisMonthData(month, babyFeedingList):
     try:
-        thisMonthData = monthlyData(month, babyFeedingList)
-        thisMonthAverageByRange = monthlyAverageByRange(thisMonthData)
+        DataThisMonth = monthlyData(month, babyFeedingList)
+        thisMonthAverageByRange = monthlyAverageByRange(DataThisMonth)
     except:
         print("Something wrong occured while extracting range average data for {} month.".format(month))
     return thisMonthAverageByRange
@@ -171,12 +180,12 @@ def plotThisMonth(babyFeedingInfoList, thisMonth, linestyle, linecolor):
     #Label of x axis, only shown 1-23, with 2 interval on the x axis.
     plt.xticks([1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23])
     #y axis is in range of 0-5.
-    plt.ylim(0, 5)
+    plt.ylim(0, 3)
     #Label of y axis.
     plt.ylabel("Amount (oz)")
 
 
-#Actual analysis starts below!
+#Actual non-functional code starts here.
 
 #How many data entries there?
 totalDataEntry = len(yalkunData)
@@ -184,6 +193,8 @@ totalDataEntry = len(yalkunData)
 for dataEntry in range(totalDataEntry):
     #This is feeding time of this entry.
     fedTime = splitDateTime(yalkunData["Time"].loc[dataEntry])[0]
+    #This is date of this feeding
+    fedDate = splitDateTime(yalkunData["Time"].loc[dataEntry])[2]
     #This is in AM or PM?
     morningOrAfternoon = splitDateTime(yalkunData["Time"].loc[dataEntry])[1]
     #Which month is this entry belong to?
@@ -193,12 +204,14 @@ for dataEntry in range(totalDataEntry):
     #The time range of this data entry.
     dayRange = timeRanges(morningOrAfternoon, fedTime)
     #Storing a list of month, range, and amount into feed info list. 
-    feedInfoList.append([fedMonth, dayRange, fedAmount])
+    feedInfoList.append([fedMonth, dayRange, fedAmount, fedDate])
+# print(feedInfoList)
 #Plotting 3 selected months, July, August, September. With each one of the has different line features.
 plotThisMonth(feedInfoList, "July", "dotted", "black")
 plotThisMonth(feedInfoList, "August", "dashed", "black")
 plotThisMonth(feedInfoList, "September", "solid", "black")
+plotThisMonth(feedInfoList, "October", "solid", "blue")
 #Puts the figure legend at the top right.
-plt.legend(loc="upper right", labels=["July", "August", "September"])
+plt.legend(loc="upper right", labels=["July", "August", "September", "October"])
 #Shows the plot. 
 plt.show()
